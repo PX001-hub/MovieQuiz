@@ -31,14 +31,12 @@ final class MovieQuizViewController: UIViewController {
     }
     
     
-    
-    
     // MARK: - Properties
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
     // Массив вопросов
-    let questions: [QuizQuestion] = [
+    private let questions: [QuizQuestion] = [
         QuizQuestion(
             image: "The Godfather",
             text: "Рейтинг этого фильма больше чем 6?",
@@ -83,14 +81,12 @@ final class MovieQuizViewController: UIViewController {
     
     // MARK: - Methods
     
-    
-    
     private func resetImageViewBorder() {
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = UIColor.clear.cgColor
     }
     
-    func setButtonEnabled(_ isEnabled: Bool) {
+     private func setButtonEnabled(_ isEnabled: Bool) {
         noButton.isEnabled = isEnabled
         yesButton.isEnabled = isEnabled
     }
@@ -118,7 +114,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     // для состояния "Результат квиза"
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
         // строка с заголовком алерта
         let title: String
         // строка с текстом о количестве набранных очков
@@ -150,11 +146,7 @@ final class MovieQuizViewController: UIViewController {
     // приватный метод, который меняет цвет рамки
     // принимает на вход булевое значение и ничего не возвращает
     private func showAnswerResult(isCorrect: Bool) {
-        // метод красит рамку
-        //        if isCorrect { // 1
-        //               correctAnswers += 1 // 2
-        //           }
-        
+       
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
@@ -189,7 +181,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     // Метод для проверки ответа
-    func checkAnswer(_ answer: Bool) {
+    private func checkAnswer(_ answer: Bool) {
         setButtonEnabled(false)
         let currentQuestion = questions[currentQuestionIndex]
         
@@ -228,13 +220,13 @@ final class MovieQuizViewController: UIViewController {
 }
 
 // MARK: - Models
-struct QuizQuestion {
+private struct QuizQuestion {
     let image: String
     let text: String
     let correctAnswer: Bool
 }
 
-struct QuizStepViewModel {
+private struct QuizStepViewModel {
     let image: UIImage
     let question: String
     let questionNumber: String
