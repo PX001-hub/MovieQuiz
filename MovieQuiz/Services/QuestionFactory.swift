@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 class QuestionFactory: QuestionFactoryProtocol {
     func requestNextQuestion() -> QuizQuestion? {
         guard let index = (0..<questions.count).randomElement() else {
