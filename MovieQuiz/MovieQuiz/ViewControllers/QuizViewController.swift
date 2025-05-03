@@ -50,10 +50,28 @@ final class QuizViewController: UIViewController {
     // MARK: - Properties
     
     private let movieService = MovieService()
-    private let statsManager = QuizStatsManager()
+    private let questionFactory: QuestionFactoryProtocol
+    private let statisticService: StatisticService
+    private lazy var resultAlertPresenter: ResultAlertPresenterProtocol = {
+        ResultAlertPresenter(viewController: self, statisticService: statisticService)
+    }()
+    
     private var questions: [QuizQuestion] = []
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
+    
+    // MARK: - Init
+    
+    init(questionFactory: QuestionFactoryProtocol = QuestionFactory(),
+         statisticService: StatisticService = StatisticServiceImplementation()) {
+        self.questionFactory = questionFactory
+        self.statisticService = statisticService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     
@@ -101,7 +119,7 @@ final class QuizViewController: UIViewController {
         Task {
             do {
                 let movies = try await movieService.fetchMovies()
-                questions = movies.prefix(10).map { QuizQuestion.makeQuestion(from: $0) }
+                questions = movies.prefix(10).map { questionFactory.createQuestion(from: $0) }
                 currentQuestionIndex = 0
                 correctAnswers = 0
                 showQuestion()
@@ -150,30 +168,9 @@ final class QuizViewController: UIViewController {
     }
     
     private func showGameResults() {
-        statsManager.updateStats(score: correctAnswers)
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        
-        let bestScoreDateString = statsManager.bestScoreDate.map { dateFormatter.string(from: $0) } ?? "Нет данных"
-        
-        let alert = UIAlertController(
-            title: "Раунд завершен!",
-            message: """
-                Ваш результат: \(correctAnswers)/10
-                Количество сыгранных квизов: \(statsManager.gamesPlayed)
-                Рекорд: \(statsManager.bestScore) (\(bestScoreDateString))
-                Средняя точность: \(String(format: "%.1f", statsManager.averageAccuracy))%
-                """,
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "Сыграть еще раз", style: .default) { [weak self] _ in
+        resultAlertPresenter.showAlert(score: correctAnswers) { [weak self] in
             self?.startNewGame()
-        })
-        
-        present(alert, animated: true)
+        }
     }
     
     private func showError() {
